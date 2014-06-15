@@ -17,6 +17,10 @@ activityData$date <- as.Date(activityData$date)
 
 This is how the imported data looks like:
 
+```r
+str(activityData)
+```
+
 ```
 ## 'data.frame':	17568 obs. of  3 variables:
 ##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
@@ -117,7 +121,7 @@ colSums(is.na(activityData))
 ##     2304        0        0
 ```
 
-In order to **clean the NA values**, we decided to associate to each NA in the *step* column of the data frame the average number of steps associated to its 5-minute interval (computed on the entire dataset). The average number of steps associated to NA values was also *rounded to the nearest integer value*.
+The presence of NAs can add bias to the analysis. In order to **clean the NA values**, we decided to associate to each NA in the *steps* column of the data frame the average number of steps associated to its 5-minute interval (computed on the entire dataset). The average number of steps associated to NA values was also *rounded to the nearest greater integer value (ceiling)* in order to keep the steps variable as an integer value (a fractionary number of steps does not make physical sense).
 
 The following code details transformation that was applied:
 
@@ -132,7 +136,7 @@ cleanActivityData <- merge(x=activityData,
                            by="interval")
 
 cleanActivityData$steps <- mapply(function(x,y) ifelse(is.na(x),
-                                                       round(y), x),
+                                                       ceiling(y), x),
                                   cleanActivityData$steps,
                                   cleanActivityData$averageSteps)
 # remove added column and unused datasets
@@ -148,7 +152,7 @@ totStepStatC <- plotTotalStepsPerDay(cleanActivityData)
 
 ![plot of chunk totalCleanStepsPerDay](figure/totalCleanStepsPerDay.png) 
 
-Now, the average number of steps per day is 1.0766 &times; 10<sup>4</sup>, and the median number of steps per day is 1.0762 &times; 10<sup>4</sup>.
+Now, the average number of steps per day is 1.0785 &times; 10<sup>4</sup>, and the median number of steps per day is 1.0909 &times; 10<sup>4</sup>.
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
@@ -158,11 +162,11 @@ In order to compare the different pattern of steps in weekDays and weekEnds, the
 # NOTE: the following step probably requires English Locale
 cleanActivityData$dayType <- as.factor(ifelse(weekdays(cleanActivityData$date) %in% c("Saturday", "Sunday"),"weekend","weekday"))
 
-cleanWEActivityData <- subset(cleanActivityData,
-                              dayType=="weekend",
-                              select=c("interval","steps","date"))
 cleanWDActivityData <- subset(cleanActivityData,
                               dayType=="weekday",
+                              select=c("interval","steps","date"))
+cleanWEActivityData <- subset(cleanActivityData,
+                              dayType=="weekend",
                               select=c("interval","steps","date"))
 ```
 
@@ -179,8 +183,6 @@ avgWEStepStatC <- plotAvgIntervalStepsTimeSeries(cleanWEActivityData,
 
 ![plot of chunk plotWeekdayWeekend](figure/plotWeekdayWeekend.png) 
 
-In weekdays, the maximum value of the average 5-minute interval number of steps is *230.3556 steps* and is reached at the *835° 5-minute interval* of the day.
+In weekdays, the maximum value of the average 5-minute interval number of steps is *230.4889 steps* and is reached at the *835° 5-minute interval* of the day.
 
-In weekends, the maximum value of the average 5-minute interval number of steps is *166.625 steps* and is reached at the *915° 5-minute interval* of the day.
-
-(note that the cleaning operation has not changed the same statistics computed over all days)
+In weekends, the maximum value of the average 5-minute interval number of steps is *166.75 steps* and is reached at the *915° 5-minute interval* of the day.

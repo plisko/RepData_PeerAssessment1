@@ -15,7 +15,7 @@ activityData$date <- as.Date(activityData$date)
 ```
 
 This is how the imported data looks like:
-```{r dataSummary, echo=FALSE}
+```{r dataSummary}
 str(activityData)
 ```
 
@@ -98,7 +98,7 @@ The above analysis was done by excluding the NA values from the dataset. The num
 colSums(is.na(activityData))
 ```
 
-In order to **clean the NA values**, we decided to associate to each NA in the *step* column of the data frame the average number of steps associated to its 5-minute interval (computed on the entire dataset). The average number of steps associated to NA values was also *rounded to the nearest integer value*.
+The presence of NAs can add bias to the analysis. In order to **clean the NA values**, we decided to associate to each NA in the *steps* column of the data frame the average number of steps associated to its 5-minute interval (computed on the entire dataset). The average number of steps associated to NA values was also *rounded to the nearest greater integer value (ceiling)* in order to keep the steps variable as an integer value (a fractionary number of steps does not make physical sense).
 
 The following code details transformation that was applied:
 ```{r cleanNAs}
@@ -112,7 +112,7 @@ cleanActivityData <- merge(x=activityData,
                            by="interval")
 
 cleanActivityData$steps <- mapply(function(x,y) ifelse(is.na(x),
-                                                       round(y), x),
+                                                       ceiling(y), x),
                                   cleanActivityData$steps,
                                   cleanActivityData$averageSteps)
 # remove added column and unused datasets
@@ -134,11 +134,11 @@ In order to compare the different pattern of steps in weekDays and weekEnds, the
 # NOTE: the following step probably requires English Locale
 cleanActivityData$dayType <- as.factor(ifelse(weekdays(cleanActivityData$date) %in% c("Saturday", "Sunday"),"weekend","weekday"))
 
-cleanWEActivityData <- subset(cleanActivityData,
-                              dayType=="weekend",
-                              select=c("interval","steps","date"))
 cleanWDActivityData <- subset(cleanActivityData,
                               dayType=="weekday",
+                              select=c("interval","steps","date"))
+cleanWEActivityData <- subset(cleanActivityData,
+                              dayType=="weekend",
                               select=c("interval","steps","date"))
 ```
 
@@ -155,5 +155,3 @@ avgWEStepStatC <- plotAvgIntervalStepsTimeSeries(cleanWEActivityData,
 In weekdays, the maximum value of the average 5-minute interval number of steps is *`r avgWDStepStatC$max` steps* and is reached at the *`r avgWDStepStatC$argmax`° 5-minute interval* of the day.
 
 In weekends, the maximum value of the average 5-minute interval number of steps is *`r avgWEStepStatC$max` steps* and is reached at the *`r avgWEStepStatC$argmax`° 5-minute interval* of the day.
-
-(note that the cleaning operation has not changed the same statistics computed over all days)
