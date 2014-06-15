@@ -6,14 +6,14 @@ The data consists of two months of data from an anonymous individual collected d
 
 ## Loading and preprocessing the data
 The loading and preprocessing phase of the data was performed using the following R code.
-```{r}
+```{r loadData}
 unzip('activity.zip')
 activityData <- read.csv('activity.csv')
 activityData$date <- as.Date(activityData$date)
 ```
 
 This is how the imported data looks like:
-```{r}
+```{r dataSummary}
 str(activityData)
 ```
 
@@ -22,7 +22,7 @@ Two utilities functions were created in order to simplify the generation of the 
 
 The following function was created to **plot an histogram of total steps per day**:
 
-```{r}
+```{r totalPlotFunction}
 plotTotalStepsPerDay <- function(data, title="Number of steps per Day") {
     stepsPerDay <- aggregate(data$steps, by=list(date=data$date), FUN=sum,  na.rm=TRUE)
     colnames(stepsPerDay) <- c('date','totalSteps')
@@ -47,7 +47,7 @@ plotTotalStepsPerDay <- function(data, title="Number of steps per Day") {
 ```
 
 The following function was created to **plot a time series of average steps per 5-minute interval**:
-```{r}
+```{r averagePlotFunction}
 plotAvgIntervalStepsTimeSeries <- function(data, title="Average steps per 5-minute interval"){
     avgIntervalSteps <- aggregate(data$steps, by=list(interval=data$interval), FUN=mean,  na.rm=TRUE)
     colnames(avgIntervalSteps) <- c('interval','averageSteps')
